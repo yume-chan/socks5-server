@@ -1,21 +1,45 @@
-# typescript-package-scaffold
+# SOCKS5 Server
 
-[![travis-ci](https://travis-ci.org/yume-chan/typescript-package-scaffold.svg?branch=master)](https://travis-ci.org/yume-chan/typescript-package-scaffold)
-[![Greenkeeper badge](https://badges.greenkeeper.io/yume-chan/typescript-package-scaffold.svg)](https://greenkeeper.io/)
+[![travis-ci](https://travis-ci.org/yume-chan/socks5-server.svg?branch=master)](https://travis-ci.org/yume-chan/socks5-server)
+[![Greenkeeper badge](https://badges.greenkeeper.io/yume-chan/socks5-server.svg)](https://greenkeeper.io/)
 
-*DESCRIPTION TO BE FILLED*
+An SOCKS5 server implementation that doesn't tie to specific transportation
 
-- [typescript-package-scaffold](#typescript-package-scaffold)
+- [SOCKS5 Server](#SOCKS5-Server)
+  - [Limitation](#Limitation)
   - [API](#API)
+    - [Usage](#Usage)
   - [Development](#Development)
     - [Install dependencies:](#Install-dependencies)
     - [Testing](#Testing)
     - [Coverage](#Coverage)
   - [License](#License)
 
+## Limitation
+
+* Only support NONE authentication.
+* Only support CONNECT command
+
 ## API
 
-*TO BE FILLED*
+``` ts
+export default class Socks5ServerConnection {
+    process(data: Buffer): void;
+
+    close(): void;
+
+    on(event: 'data', listener: (data: Buffer) => void): void;
+    on(event: 'close', listener: () => void): void;
+}
+```
+
+### Usage
+
+1. Create `Socks5ServerConnection` instance for each new client connection
+2. Feed data from client into `process` function
+3. Feed data from `data` event to client
+4. Invoke `close` when client closes connection
+5. Close client connection when `close` event fire
 
 ## Development
 

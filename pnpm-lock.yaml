@@ -1,5 +1,8 @@
+dependencies:
+  ipaddr.js: 1.9.0
 devDependencies:
   '@types/jest': 24.0.15
+  '@types/node': 12.6.2
   jest: 24.8.0
   ts-jest: 24.0.2_jest@24.8.0
   typescript: 3.5.2
@@ -350,6 +353,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-MU1HIvWUme74stAoc3mgAi+aMlgKOudgEvQDIm1v4RkrDudBh1T+NFp5sftpBAdXdx1J0PbdpJ+M2EsSOi1djA==
+  /@types/node/12.6.2:
+    dev: true
+    resolution:
+      integrity: sha512-gojym4tX0FWeV2gsW4Xmzo5wxGjXGm550oVUII7f7G5o4BV6c7DBdiG1RRQd+y1bvqRyYtPfMK85UM95vsapqQ==
   /@types/stack-utils/1.0.1:
     dev: true
     resolution:
@@ -1371,6 +1378,12 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha512-wPVv/y/QQ/Uiirj/vh3oP+1Ww+AWehmi1g5fFWGPF6IpCBCDVrhgHRMvrLfdYcwDh3QJbGXDW4JAuzxElLSqKA==
+  /ipaddr.js/1.9.0:
+    dev: false
+    engines:
+      node: '>= 0.10'
+    resolution:
+      integrity: sha512-M4Sjn6N/+O6/IXSJseKqHoFc+5FdGJ22sXqnjTpdZweHK64MzEPAyQZyEU3R/KRv2GLoa7nNtg/C2Ev6m7z+eA==
   /is-accessor-descriptor/0.1.6:
     dependencies:
       kind-of: 3.2.2
@@ -3528,6 +3541,8 @@ packages:
       integrity: sha512-Lhz8TLaYnxq/2ObqHDql8dX8CJi97oHxrjUcYtzKbbykPtVW9WB+poxI+NM2UIzsMgNCZTIf0AQwsjK5yMAqZw==
 specifiers:
   '@types/jest': ^24.0.15
+  '@types/node': ^12.6.2
+  ipaddr.js: ^1.9.0
   jest: ^24.8.0
   ts-jest: ^24.0.2
   typescript: ^3.5.2

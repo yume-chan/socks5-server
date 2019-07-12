@@ -1,7 +1,7 @@
 {
-  "name": "typescript-package-scaffold",
+  "name": "@yume-chan/socks5-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "An SOCKS5 server implementation that doesn't tie to specific transportation",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "directories": {
@@ -15,18 +15,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yume-chan/typescript-package-scaffold.git"
+    "url": "git+https://github.com/yume-chan/socks5-server.git"
   },
   "author": "Simon Chan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/yume-chan/typescript-package-scaffold/issues"
+    "url": "https://github.com/yume-chan/socks5-server/issues"
   },
-  "homepage": "https://github.com/yume-chan/typescript-package-scaffold#readme",
+  "homepage": "https://github.com/yume-chan/socks5-server#readme",
   "devDependencies": {
     "@types/jest": "^24.0.15",
+    "@types/node": "^12.6.2",
     "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "ipaddr.js": "^1.9.0"
   }
 }
