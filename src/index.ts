@@ -100,6 +100,9 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
 
     private _socket: net.Socket;
 
+    private _reading: boolean = false;
+    private _ended: boolean = false;
+
     constructor(connection: Socks5ServerConnection, address: string, port: number) {
         this._connection = connection;
 
@@ -121,7 +124,7 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
 
             this.read();
         });
-        this._socket.on('error', () => {
+        this._socket.on('error', (e) => {
             if (this._socket.connecting) {
                 const response = Buffer.alloc(6 + 4);
                 response.writeUInt8(Socks5Version, 0);
@@ -133,9 +136,15 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
                 this._connection.end();
             }
         });
+        this._socket.on('close', () => {
+            this._ended = true;
+
+            this._connection.push(null);
+            this._connection.end();
+        })
     }
 
-    process(data: Buffer): Promise<void> {
+    public process(data: Buffer): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this._socket.write(data, (err) => {
                 if (err) {
@@ -147,18 +156,30 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
         });
     }
 
-    async read() {
-        while (this._connection.readableLength < this._connection.readableHighWaterMark) {
+    public async read() {
+        if (this._reading) {
+            return;
+        }
+
+        this._reading = true;
+        while (!this._ended && this._connection.readableLength < this._connection.readableHighWaterMark) {
             if (this._socket.readableLength === 0) {
                 await once(this._socket, 'readable');
             }
-            this._connection.push(this._socket.read());
+
+            let chunk: Buffer | null;
+            while ((chunk = this._socket.read()) !== null) {
+                this._connection.push(chunk);
+            }
         }
+        this._reading = false;
     }
 
     async end(): Promise<void> {
-        this._socket.end();
-        await once(this._socket, 'close');
+        if (!this._ended) {
+            this._socket.end();
+            await once(this._socket, 'close');
+        }
     }
 }
 
