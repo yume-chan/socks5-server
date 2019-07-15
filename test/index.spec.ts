@@ -34,7 +34,7 @@ function runSteps(authenticateMethods: Socks5AuthenticateMethod[], done: () => v
         offset += 1;
     }
 
-    connection.process(request);
+    connection.write(request);
 }
 
 describe('socks5-server', () => {
@@ -78,7 +78,7 @@ describe('socks5-server', () => {
         // VER - 0x04
         request.writeUInt8(Socks5Version - 1, 0);
 
-        connection.process(request);
+        connection.write(request);
     });
 
     it('should select NONE authentication', (done) => {
@@ -110,7 +110,7 @@ describe('socks5-server', () => {
                 // DST.PORT
                 request.writeUInt16BE(port, 4 + address.buffer.length);
 
-                connection.process(request);
+                connection.write(request);
             },
             (connection, response) => {
                 expect(connection).toHaveProperty('state', Socks5ConnectionState.Relay);
@@ -120,7 +120,7 @@ describe('socks5-server', () => {
                 // REP - X'00' succeeded
                 expect(response.readUInt8(1)).toBe(Socks5CommandResponse.Success);
 
-                connection.close();
+                connection.end();
             },
         );
     });
@@ -145,15 +145,15 @@ describe('socks5-server', () => {
                 // DST.PORT
                 request.writeUInt16BE(port, 4 + address.buffer.length);
 
-                connection.process(request);
+                connection.write(request);
             },
             (connection, response) => {
-                connection.process(message);
+                connection.write(message);
             },
             (connection, response) => {
                 expect(response).toEqual(message);
 
-                connection.close();
+                connection.end();
             },
         );
     });

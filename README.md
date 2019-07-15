@@ -23,10 +23,10 @@ An SOCKS5 server implementation that doesn't tie to specific transportation
 ## API
 
 ``` ts
-export default class Socks5ServerConnection {
-    process(data: Buffer): void;
+export default class Socks5ServerConnection extends Duplex {
+    write(data: Buffer): void;
 
-    close(): void;
+    end(): void;
 
     on(event: 'data', listener: (data: Buffer) => void): void;
     on(event: 'close', listener: () => void): void;
@@ -38,7 +38,7 @@ export default class Socks5ServerConnection {
 1. Create `Socks5ServerConnection` instance for each new client connection
 2. Feed data from client into `process` function
 3. Feed data from `data` event to client
-4. Invoke `close` when client closes connection
+4. Invoke `end` when client closes connection
 5. Close client connection when `close` event fire
 
 ## Development

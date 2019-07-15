@@ -1,7 +1,8 @@
 import net from 'net';
-import { EventEmitter } from 'events';
+import { EventEmitter, once } from 'events';
 
 import * as ipaddr from 'ipaddr.js';
+import { Duplex } from 'stream';
 
 export enum Socks5ConnectionState {
     Handshake,
@@ -77,9 +78,11 @@ class BufferReader {
 }
 
 export interface Socks5CommandHandler {
-    process(data: Buffer): void;
+    process(data: Buffer): Promise<void>;
 
-    close(): void;
+    read(): void;
+
+    end(): Promise<void>;
 }
 
 export interface Socks5CommandHandlerConstructor {
@@ -87,7 +90,7 @@ export interface Socks5CommandHandlerConstructor {
 }
 
 export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
-    private _emitter: EventEmitter;
+    private _connection: Socks5ServerConnection;
 
     private _address: string;
     public get address(): string { return this._address; }
@@ -97,8 +100,8 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
 
     private _socket: net.Socket;
 
-    constructor(emitter: EventEmitter, address: string, port: number) {
-        this._emitter = emitter;
+    constructor(connection: Socks5ServerConnection, address: string, port: number) {
+        this._connection = connection;
 
         this._address = address;
         this._port = port;
@@ -114,10 +117,9 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
             response.writeUInt8(localAddress.length === 4 ? Socks5AddressType.Ipv4 : Socks5AddressType.Ipv6, 3);
             response.set(localAddress, 4);
             response.writeUInt16BE(localPort, 4 + localAddress.length);
-            this._emitter.emit('data', response);
-        });
-        this._socket.on('data', (data) => {
-            this._emitter.emit('data', data);
+            this._connection.push(response);
+
+            this.read();
         });
         this._socket.on('error', () => {
             if (this._socket.connecting) {
@@ -125,22 +127,38 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
                 response.writeUInt8(Socks5Version, 0);
                 response.writeUInt8(Socks5CommandResponse.Success, 1);
                 response.writeUInt8(Socks5AddressType.Ipv4, 3);
-                this._emitter.emit('data', response);
+                this._connection.push(response);
             } else {
-                this._emitter.emit('close');
+                this._connection.push(null);
+                this._connection.end();
             }
         });
-        this._socket.on('close', () => {
-            this._emitter.emit('close');
+    }
+
+    process(data: Buffer): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            this._socket.write(data, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
         });
     }
 
-    process(data: Buffer): void {
-        this._socket.write(data);
+    async read() {
+        while (this._connection.readableLength < this._connection.readableHighWaterMark) {
+            if (this._socket.readableLength === 0) {
+                await once(this._socket, 'readable');
+            }
+            this._connection.push(this._socket.read());
+        }
     }
 
-    close(): void {
+    async end(): Promise<void> {
         this._socket.end();
+        await once(this._socket, 'close');
     }
 }
 
@@ -169,9 +187,7 @@ export const Socks5Version = 0x05;
 /**
  * @see https://tools.ietf.org/html/rfc1928
  */
-export default class Socks5ServerConnection {
-    private _emitter: EventEmitter = new EventEmitter();
-
+export default class Socks5ServerConnection extends Duplex {
     private _state: Socks5ConnectionState = Socks5ConnectionState.Handshake;
     public get state(): Socks5ConnectionState { return this._state; }
 
@@ -180,19 +196,15 @@ export default class Socks5ServerConnection {
 
     private checkVersion(data: BufferReader): boolean {
         if (data.readUint8() !== Socks5Version) {
-            this._emitter.emit('close');
+            this.push(null);
+            this.end();
             return false;
         }
 
         return true;
     }
 
-    /**
-     * Process next packet.
-     *
-     * @param data A complete SOCK5 packet
-     */
-    public process(data: Buffer): void {
+    private async process(data: Buffer): Promise<void> {
         const reader = new BufferReader(data);
 
         switch (this._state) {
@@ -210,13 +222,13 @@ export default class Socks5ServerConnection {
                     if (method === Socks5AuthenticateMethod.None) {
                         response.writeUInt8(method, 1);
                         this._state = Socks5ConnectionState.WaitCommand;
-                        this._emitter.emit('data', response);
+                        this.push(response);
                         return;
                     }
                 }
 
                 response.writeUInt8(0xFF, 1);
-                this._emitter.emit('data', response);
+                this.push(response);
                 break;
             case Socks5ConnectionState.WaitCommand:
                 if (!this.checkVersion(reader)) {
@@ -247,7 +259,7 @@ export default class Socks5ServerConnection {
                         response.writeUInt8(Socks5Version, 0);
                         response.writeUInt8(Socks5CommandResponse.AddressTypeNotSupported, 1);
                         response.writeUInt8(Socks5AddressType.Ipv4, 3);
-                        this._emitter.emit('data', response);
+                        this.push(response);
                         return;
                 }
 
@@ -255,7 +267,7 @@ export default class Socks5ServerConnection {
 
                 switch (command) {
                     case Socks5Command.Connect:
-                        this._handler = new Socks5ConnectCommandHandler(this._emitter, address, port);
+                        this._handler = new Socks5ConnectCommandHandler(this, address, port);
                         this._state = Socks5ConnectionState.Relay;
                         break;
                     case Socks5Command.Bind:
@@ -265,28 +277,42 @@ export default class Socks5ServerConnection {
                         response.writeUInt8(Socks5Version, 0);
                         response.writeUInt8(Socks5CommandResponse.CommandNotSupported, 1);
                         response.writeUInt8(Socks5AddressType.Ipv4, 3);
-                        this._emitter.emit('data', response);
+                        this.push(response);
                         return;
                 }
                 break;
             case Socks5ConnectionState.Relay:
-                this._handler!.process(data);
+                await this._handler!.process(data);
                 break;
         }
     }
 
-    /**
-     * Close the connection and clean up any resources.
-     */
-    public close(): void {
+    public _read() {
         if (this._handler) {
-            this._handler.close();
+            this._handler.read();
         }
     }
 
-    public on(event: 'data', listener: (data: Buffer) => void): void;
-    public on(event: 'close', listener: () => void): void;
-    public on(event: string, listener: (...args: any[]) => void): void {
-        this._emitter.on(event, listener);
+    public async _write(chunk: Buffer, encoding: string, callback: (err?: Error) => void): Promise<void> {
+        try {
+            await this.process(chunk);
+            callback();
+        } catch (e) {
+            callback(e);
+        }
+    }
+
+    public async _final(callback: (err: Error | null) => void): Promise<void> {
+        if (this._handler) {
+            await this._handler.end();
+        }
+
+        callback(null);
+        this.destroy();
+    }
+
+    public _destroy(err: Error | null, callback: (err: Error | null) => void) {
+        this.emit('close');
+        callback(err);
     }
 }
