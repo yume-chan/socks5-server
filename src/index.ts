@@ -161,15 +161,19 @@ export class Socks5ConnectCommandHandler implements Socks5CommandHandler {
             return;
         }
 
+        let full = false;
         this._reading = true;
-        while (!this._ended && this._connection.readableLength < this._connection.readableHighWaterMark) {
+        while (!this._ended && !full) {
             if (this._socket.readableLength === 0) {
                 await once(this._socket, 'readable');
             }
 
             let chunk: Buffer | null;
             while ((chunk = this._socket.read()) !== null) {
-                this._connection.push(chunk);
+                if (!this._connection.push(chunk)) {
+                    full = true;
+                    break;
+                }
             }
         }
         this._reading = false;
