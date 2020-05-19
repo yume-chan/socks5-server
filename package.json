@@ -24,11 +24,11 @@
   },
   "homepage": "https://github.com/yume-chan/socks5-server#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.15",
-    "@types/node": "^12.6.2",
-    "jest": "^24.8.0",
-    "ts-jest": "^24.0.2",
-    "typescript": "^3.5.2"
+    "@types/jest": "24.9.1",
+    "@types/node": "12.12.39",
+    "jest": "24.9.0",
+    "ts-jest": "24.3.0",
+    "typescript": "3.9.2"
   },
   "dependencies": {
     "ipaddr.js": "^1.9.0"
