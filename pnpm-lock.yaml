@@ -2,7 +2,7 @@ dependencies:
   ipaddr.js: 1.9.0
 devDependencies:
   '@types/jest': 25.2.3
-  '@types/node': 12.12.43
+  '@types/node': 12.12.44
   jest: 26.0.1
   ts-jest: 26.1.0_jest@26.0.1+typescript@3.9.5
   typescript: 3.9.5
@@ -561,10 +561,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-pADGfwnDkr6zagDwEiCVE4yQrv7XDkoeVa4OfA9Ju/zRTk6YNDLGtQbkdL4/56mCQQCs4AhNrBIag6jrp7ZuOg==
-  /@types/node/12.12.43:
+  /@types/node/12.12.44:
     dev: true
     resolution:
-      integrity: sha512-KUyZdkGCnVPuXfsKmDUu2XLui65LZIJ2s0M57noy5e+ixUT2oK33ep7zlvgzI8LElcWqbf8AR+o/3GqAPac2zA==
+      integrity: sha512-jM6QVv0Sm5d3nW+nUD5jSzPcO6oPqboitSNcwgBay9hifVq/Rauq1PYnROnsmuw45JMBiTnsPAno0bKu2e2xrg==
   /@types/normalize-package-data/2.4.0:
     dev: true
     resolution:
@@ -3849,7 +3849,7 @@ packages:
       integrity: sha512-92O1HWEjw27sBfgmXiixJWT5hRBp2eobqXicLtPBIDBhYB+1HpwZlXmbW2luivBJHBzki+7VyCLRtAkScbTBQA==
 specifiers:
   '@types/jest': 25.2.3
-  '@types/node': 12.12.43
+  '@types/node': 12.12.44
   ipaddr.js: ^1.9.0
   jest: 26.0.1
   ts-jest: 26.1.0
