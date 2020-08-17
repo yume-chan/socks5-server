@@ -1,5 +1,5 @@
 dependencies:
-  ipaddr.js: 1.9.0
+  ipaddr.js: 2.0.0
 devDependencies:
   '@types/jest': 26.0.7
   '@types/node': 12.12.44
@@ -1690,12 +1690,12 @@ packages:
       node: '>=4'
     resolution:
       integrity: sha1-+ni/XS5pE8kRzp+BnuUUa7bYROk=
-  /ipaddr.js/1.9.0:
+  /ipaddr.js/2.0.0:
     dev: false
     engines:
-      node: '>= 0.10'
+      node: '>= 10'
     resolution:
-      integrity: sha512-M4Sjn6N/+O6/IXSJseKqHoFc+5FdGJ22sXqnjTpdZweHK64MzEPAyQZyEU3R/KRv2GLoa7nNtg/C2Ev6m7z+eA==
+      integrity: sha512-S54H9mIj0rbxRIyrDMEuuER86LdlgUg9FSeZ8duQb6CUG2iRrA36MYVQBSprTF/ZeAwvyQ5mDGuNvIPM0BIl3w==
   /is-accessor-descriptor/0.1.6:
     dependencies:
       kind-of: 3.2.2
@@ -3871,7 +3871,7 @@ packages:
 specifiers:
   '@types/jest': 26.0.7
   '@types/node': 12.12.44
-  ipaddr.js: ^1.9.0
+  ipaddr.js: ^2.0.0
   jest: 26.1.0
   ts-jest: 26.1.4
   typescript: 3.9.7
