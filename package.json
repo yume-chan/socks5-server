@@ -27,7 +27,7 @@
     "@types/jest": "26.0.7",
     "@types/node": "12.12.44",
     "jest": "26.1.0",
-    "ts-jest": "26.1.4",
+    "ts-jest": "27.0.3",
     "typescript": "3.9.7"
   },
   "dependencies": {
