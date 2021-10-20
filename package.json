@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/yume-chan/socks5-server#readme",
   "devDependencies": {
-    "@types/jest": "26.0.7",
+    "@types/jest": "27.0.2",
     "@types/node": "12.12.44",
     "jest": "26.1.0",
     "ts-jest": "26.1.4",
